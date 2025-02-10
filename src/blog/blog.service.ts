@@ -26,7 +26,7 @@ export class BlogService {
             },
         });
         console.log("response",response);
-        return { message: 'Blog created successfully' };
+        return response;
     }
 
     async getAllBlogs() {
