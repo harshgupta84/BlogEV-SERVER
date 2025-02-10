@@ -30,7 +30,8 @@ model Blog {
   content    String
   authorId   String
   author     User     @relation(fields: [authorId], references: [id])
-  topics     String[] // Assuming you want to keep topics as strings in Blog as well
+  topics     Json  // Assuming you want to keep topics as strings in Blog as well
+  views     Int      @default(0) // Add this field to track views
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
