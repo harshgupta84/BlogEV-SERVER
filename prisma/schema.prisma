@@ -12,14 +12,16 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id         String   @id @default(uuid())
   name       String
   email      String   @unique
   password   String
   isVerified Boolean  @default(false)
-  topics     String[] // Changed from UserTopic[] to a simple array of strings
-  blogs      Blog[]
+  topics     String[]
+  blogs      Blog[]   @relation("AuthorBlogs")
+  bookmarks  Blog[]   @relation("UserBookmarks")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -29,9 +31,10 @@ model Blog {
   title      String
   content    String
   authorId   String
-  author     User     @relation(fields: [authorId], references: [id])
-  topics     String[]  // Assuming you want to keep topics as strings in Blog as well
-  views      Int      @default(0) // Add this field to track views
+  author     User     @relation("AuthorBlogs", fields: [authorId], references: [id])
+  topics     String[]
+  views      Int      @default(0)
+  bookmarkedBy User[] @relation("UserBookmarks")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

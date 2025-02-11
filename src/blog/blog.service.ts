@@ -60,6 +60,7 @@ export class BlogService {
                 content: true,
                 topics: true,
                 createdAt: true,
+                author: true,
                 
             },
         });
