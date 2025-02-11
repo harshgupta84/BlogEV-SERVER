@@ -21,7 +21,6 @@ export class PostBlogDto {
   })
   @IsOptional()
   @IsArray()  
-  @ArrayNotEmpty()  // Ensures the array isn't empty (optional, remove if not needed)
-  @IsString({ each: true }) // Ensures all elements are strings
+  @ArrayNotEmpty()  // Ensures the array isn't empty (optional, remove if not needed)// Ensures all elements are strings
   topics?: string[];
 }

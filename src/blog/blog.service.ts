@@ -24,7 +24,7 @@ export class BlogService {
             data: {
                 title,
                 content: content || "", // Default to empty string if not provided
-                topics: topics?.length ? JSON.stringify(topics) : "[]", // Ensure proper JSON formatting
+                topics: topics||[], // Ensure proper JSON formatting
                 authorId: userId,  // Ensure consistency with schema
             },
         });
