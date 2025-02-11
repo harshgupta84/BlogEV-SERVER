@@ -67,7 +67,15 @@ export class BlogService {
     }
 
     async getBlogById(id: string, userId: string) {
-        const blog = await this.prisma.blog.findUnique({ where: { id } });
+        const blog = await this.prisma.blog.findUnique({ where: { id }, select: {
+            id: true,
+            title: true,
+            content: true,
+            topics: true,
+            createdAt: true,
+            author: true,
+            views: true,
+        } });
         if (!blog) {
             throw new NotFoundException('Blog not found');
         }
