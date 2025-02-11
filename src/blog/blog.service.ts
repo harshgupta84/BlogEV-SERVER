@@ -8,27 +8,31 @@ export class BlogService {
     constructor(private readonly prisma: PrismaService) {}
 
     async postBlog(postBlogDto: PostBlogDto, userId: string) {
+        console.log("postBlogDto", postBlogDto);
+    
+        // Destructure input DTO
         const { title, content, topics } = postBlogDto;
-
+    
         // Check if user exists
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user) {
             throw new NotFoundException('User not found');
         }
-
+    
         // Create blog
-        const response=await this.prisma.blog.create({
+        const response = await this.prisma.blog.create({
             data: {
                 title,
-                content: content ?? '',
-                topics: topics ? JSON.stringify(topics) : '[]',
+                content: content || "", // Default to empty string if not provided
+                topics: topics?.length ? JSON.stringify(topics) : "[]", // Ensure proper JSON formatting
                 authorId: userId,  // Ensure consistency with schema
             },
         });
-        console.log("response",response);
+    
+        console.log("response", response);
         return response;
     }
-
+    
     async getAllBlogs() {
         return await this.prisma.blog.findMany({
             orderBy: { createdAt: 'desc' },
