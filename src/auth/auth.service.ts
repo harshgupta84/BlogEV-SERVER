@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { SetTopicDto } from './dto/setTopic.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,18 @@ export class AuthService {
 
     return { message: 'User registered successfully' };
   }
+
+  async setTopic(setTopicDto: SetTopicDto) {
+    const { email, topics } = setTopicDto;
+
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error('User not found');
+
+    return await this.prisma.user.update({
+        where: { email },
+        data: { topics },
+    });
+}
 
   async signIn(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
