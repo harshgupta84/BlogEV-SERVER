@@ -11,7 +11,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)  // Protecting the route with JwtAuthGuard
   async getProfile(@Req() req) {
     // User data is in req.user after validation by JwtAuthGuard
-    const name = await this.usersService.getUserName(req.user.userId);
-    return { name };  // Send back only the name
+    return await this.usersService.getUser(req.user.userId);
+    // Send back only the name
   }
 }
