@@ -7,10 +7,11 @@ import { UsersModule } from './users/users.module';
 import { BlogModule } from './blog/blog.module';
 import { FeedModule } from './feed/feed.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
+import { RedisModule } from './redis/redis.module';
 
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, BlogModule, FeedModule, BookmarkModule, ],
+  imports: [PrismaModule, AuthModule, UsersModule, BlogModule, FeedModule, BookmarkModule, RedisModule, ],
   controllers: [AppController],
   providers: [AppService, ],
 })

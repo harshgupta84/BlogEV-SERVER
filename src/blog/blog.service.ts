@@ -2,10 +2,11 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PostBlogDto } from './dto/post-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
-
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class BlogService {
-    constructor(private readonly prisma: PrismaService) {}
+    private readonly viewsThreshold = 10;
+    constructor(private readonly prisma: PrismaService,private readonly redisService: RedisService) {}
 
     async postBlog(postBlogDto: PostBlogDto, userId: string) {
         console.log("postBlogDto", postBlogDto);
@@ -67,18 +68,35 @@ export class BlogService {
     }
 
     async getBlogById(id: string, userId: string) {
-        const blog = await this.prisma.blog.findUnique({ where: { id }, select: {
-            id: true,
-            title: true,
-            content: true,
-            topics: true,
-            createdAt: true,
-            author: true,
-            views: true,
-        } });
+        const cacheKey = `blog_${id}`;
+
+        // Check if blog is cached
+        let blog = await this.redisService.get(cacheKey);
+
         if (!blog) {
-            throw new NotFoundException('Blog not found');
+            console.log('Fetching blog from DB');
+
+            blog = await this.prisma.blog.findUnique({ where: { id }, select: {
+                id: true,
+                title: true,
+                content: true,
+                topics: true,
+                createdAt: true,
+                author: true,
+                views: true,
+            } });
+            if (!blog) {
+                throw new NotFoundException('Blog not found');
+            }
+
+            // Store blog in Redis if it reaches threshold views
+            if (blog.views >= this.viewsThreshold) {
+                await this.redisService.set(cacheKey, blog, 3600);
+            }
+        } else {
+            console.log('Returning cached blog');
         }
+        
         this.incrementViews(id, blog.views);
         return blog;
     }
@@ -109,5 +127,17 @@ export class BlogService {
             where: { id },
             data: { views: { increment: 1 } },
         });
+        if (currentViews + 1 === this.viewsThreshold) {
+            const blog = await this.prisma.blog.findUnique({ where: { id }, select: {
+                id: true,
+                title: true,
+                content: true,
+                topics: true,
+                createdAt: true,
+                author: true,
+                views: true,
+            } });
+            await this.redisService.set(`blog_${id}`, blog, 3600);
+        }
     }
 }

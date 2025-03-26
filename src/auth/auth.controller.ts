@@ -17,6 +17,7 @@ export class AuthController {
   async setTopic(@Body() body:SetTopicDto){
     return this.authService.setTopic(body);
   }
+  
   @Post('signin')
   async signIn(@Body() body: SigninDto) {
     return this.authService.signIn(body.email, body.password);
